@@ -1,0 +1,5 @@
+# Tkinter, unittest và time thuộc thư viện chuẩn Python, không cài bằng pip.
+numpy
+Pillow
+# OpenCV chỉ dùng cho nhánh tham chiếu trong evaluation/.
+opencv-python
