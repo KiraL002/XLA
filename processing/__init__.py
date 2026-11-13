@@ -1,1 +1,1 @@
-"""Các thuật toán tự cài đặt bằng Python và NumPy, chưa triển khai."""
+"""Thuật toán NumPy; mức xám và tạo tranh đã triển khai, bộ lọc/Sobel còn khung."""

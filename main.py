@@ -1,4 +1,4 @@
-"""Điểm chạy chung; hiện chỉ hỗ trợ kiểm tra và thông báo trạng thái bộ khung."""
+"""Điểm chạy giao diện và kiểm tra môi trường của ứng dụng."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ MODULE_INTERFACES = {
     "processing.edges": ("sobel_magnitude", "sobel_gradients"),
     "processing.sketch": ("threshold_edges", "render_sketch"),
     "pipeline": ("run_pipeline",),
-    "ui": ("launch_app",),
+    "ui": ("launch_app", "open_image_dialog", "save_sketch_dialog"),
     "evaluation.reference": (
         "reference_grayscale",
         "reference_mean_filter",
@@ -30,7 +30,7 @@ MODULE_INTERFACES = {
 
 
 def check_imports() -> int:
-    """Kiểm tra nhập module và tên hàm; không gọi thuật toán chưa triển khai."""
+    """Kiểm tra việc nhập module và tên hàm."""
     failed = False
     for module_name, function_names in MODULE_INTERFACES.items():
         try:

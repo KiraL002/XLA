@@ -17,6 +17,7 @@ gray = np.loadtxt("data/test_matrices/constant_5x5.csv", delimiter=",", dtype=np
 | `impulse_5x5.csv` | Một điểm 255 giữa nền 0; dùng tính tay các ô của bộ lọc |
 | `vertical_edge_7x7.csv` | Cạnh dọc, chủ yếu đáp ứng Gx theo kernel thống nhất |
 | `horizontal_edge_7x7.csv` | Cạnh ngang, chủ yếu đáp ứng Gy theo kernel thống nhất |
+| `threshold_3x5.csv` | Độ lớn gradient kiểm thử bằng số; T=100 cho 5 điểm biên |
 
 Hiếu và Long có thể đọc trực tiếp các mảng này để làm việc, không cần chờ hàm
 đọc ảnh hoặc hàm mức xám. Kiệt có thể tự tạo mảng RGB nhỏ và mảng độ lớn gradient

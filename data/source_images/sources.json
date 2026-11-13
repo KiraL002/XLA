@@ -1,0 +1,68 @@
+[
+  {
+    "base_id": "astronaut",
+    "filename": "astronaut.png",
+    "author": "NASA",
+    "license": "Public domain",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/astronaut.png",
+    "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  },
+  {
+    "base_id": "coffee",
+    "filename": "coffee.png",
+    "author": "Rachel Michetti",
+    "license": "CC0",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.coffee",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/coffee.png",
+    "sha256": "cc02f8ca188b167c775a7101b5d767d1e71792cf762c33d6fa15a4599b5a8de7",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  },
+  {
+    "base_id": "grass",
+    "filename": "grass.png",
+    "author": "Nguồn DeviantArt qua scikit-image; xem tài liệu nguồn",
+    "license": "CC0",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.grass",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/grass.png",
+    "sha256": "b6b6022426b38936c43a4ac09635cd78af074e90f42ffa8227ac8b7452d39f89",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  },
+  {
+    "base_id": "chelsea",
+    "filename": "chelsea.png",
+    "author": "Stefan van der Walt",
+    "license": "CC0",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.chelsea",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/chelsea.png",
+    "sha256": "596aa1e7cb875eb79f437e310381d26b338a81c2da23439704a73c4651e8c4bb",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  },
+  {
+    "base_id": "camera",
+    "filename": "camera.png",
+    "author": "Lav Varshney",
+    "license": "CC0",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.camera",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/camera.png",
+    "sha256": "b0793d2adda0fa6ae899c03989482bff9a42d3d5690fc7e3648f2795d730c23a",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  },
+  {
+    "base_id": "rocket",
+    "filename": "rocket.jpg",
+    "author": "SpaceX",
+    "license": "Public domain theo scikit-image",
+    "documentation": "https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.rocket",
+    "download_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/rocket.jpg",
+    "sha256": "c2dd0de7c538df8d111e479619b129464d0269d0ae5fd18ca91d33a7fdfea95c",
+    "registry_url": "https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/skimage/data/_registry.py",
+    "retrieved_date": "2026-11-06"
+  }
+]

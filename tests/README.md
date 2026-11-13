@@ -1,9 +1,10 @@
 # Kế hoạch kiểm thử
 
-Hiện chưa có ca kiểm thử thuật toán được cài đặt. Lệnh `python main.py --check`
+Đã có kiểm thử phần Kiệt: mức xám, tạo tranh, đọc/lưu và hàm hộp thoại.
+Lệnh `python main.py --check`
 chỉ kiểm tra nhập module và sự tồn tại của tên hàm, không chứng minh thuật toán đúng.
 
-Khi triển khai, mỗi người tạo tệp kiểm thử của mình bằng `unittest`:
+Các phần còn lại bổ sung kiểm thử bằng `unittest` theo phân công:
 
 | Tệp dự kiến | Phụ trách | Các trường hợp cần kiểm tra |
 | --- | --- | --- |
@@ -12,6 +13,7 @@ Khi triển khai, mỗi người tạo tệp kiểm thử của mình bằng `un
 | `test_grayscale.py` | Kiệt | Đỏ/xanh lục/xanh lam, trắng/đen, kiểu float32, dữ liệu sai |
 | `test_sketch.py` | Kiệt | M nhỏ hơn/bằng/lớn hơn T, bool đầu ra, nét 0/nền 255, tham số sai |
 | `test_image_io.py` | Kiệt | Ảnh màu/xám, tệp hỏng, lưu/đọc PNG trong thư mục tạm |
+| `test_ui_io.py` | Kiệt | Giả lập chọn/hủy tệp và lỗi đọc/ghi; không tạo cửa sổ |
 | `test_pipeline.py` | Long và cả nhóm | Đúng 5 khóa, kích thước và kiểu dữ liệu; chạy toàn luồng sau tích hợp |
 
 Chạy từ thư mục `tranh_ve` sau khi đã thêm kiểm thử:

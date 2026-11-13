@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from numbers import Real
 from typing import TypedDict
 
 import numpy as np
@@ -33,9 +34,12 @@ def validate_params(ksize: int, threshold: float) -> tuple[int, float]:
         raise ValueError("Kích thước cửa sổ phải là số nguyên 3 hoặc 5.")
     if int(ksize) not in ALLOWED_KSIZES:
         raise ValueError(f"Kích thước cửa sổ chỉ nhận 3 hoặc 5, nhận được {ksize}.")
-    if isinstance(threshold, bool) or not isinstance(threshold, (int, float, np.number)):
-        raise ValueError("Ngưỡng phải là một số.")
-    t = float(threshold)
+    if isinstance(threshold, (bool, np.bool_)) or not isinstance(threshold, Real):
+        raise ValueError("Ngưỡng phải là số thực hữu hạn không âm.")
+    try:
+        t = float(threshold)
+    except (ValueError, OverflowError) as exc:
+        raise ValueError("Ngưỡng phải là số thực hữu hạn không âm.") from exc
     if not math.isfinite(t) or t < 0:
         raise ValueError(f"Ngưỡng phải là số hữu hạn không âm, nhận được {threshold}.")
     return int(ksize), t

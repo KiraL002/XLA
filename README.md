@@ -2,15 +2,16 @@
 
 Nhóm: **Hiếu, Long và Kiệt**. Dự án Python cho bài tập lớn môn Xử lý ảnh.
 
-## Trạng thái hiện tại
+Ứng dụng đã ghép phần đọc/lưu của Kiệt, bộ lọc trung bình của Hiếu và Sobel,
+pipeline cùng giao diện Tkinter của Long. Mở ảnh JPG/PNG, chọn cửa sổ lọc
+và ngưỡng, bấm **Xử lý**, chọn bước cần xem rồi bấm **Lưu tranh (PNG)**.
+Sau khi đổi ảnh hoặc tham số, bấm **Xử lý** để tạo kết quả mới.
 
-Đã có **bộ khung để chia việc**, gồm package, tên hàm, type hint, đặc tả dữ liệu,
-ma trận thử và hướng dẫn phối hợp. Các hàm xử lý, đọc/lưu, đo đạc, pipeline và
-giao diện **chưa triển khai** và sẽ báo `NotImplementedError` khi gọi.
-Chưa có ảnh kết quả, số liệu đo hoặc kiểm thử thuật toán đã chạy.
+**RGB → mức xám → lọc trung bình → Sobel → phân ngưỡng → tranh nét**
 
-Luồng dự kiến: **RGB → mức xám → lọc trung bình → Sobel → phân ngưỡng → tranh nét**.
-Thuật toán chính tự viết bằng NumPy; OpenCV phục vụ nhánh đối chiếu.
+Thuật toán chính dùng NumPy. Nhánh OpenCV dùng để đối chiếu. Bộ 18 ảnh,
+thông tin nguồn và kế hoạch kiểm thử có trong
+[tài liệu chuẩn bị](docs/KIET_CHUAN_BI_TRONG_KHI_CHO.md).
 
 ## Cài đặt trên Windows trong PowerShell
 
@@ -21,7 +22,7 @@ NumPy, Pillow và OpenCV cần có bản tương thích với phiên bản Pytho
 Set-Location D:\XLA\tranh_ve
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe main.py
+.\.venv\Scripts\python.exe main.py --gui
 .\.venv\Scripts\python.exe main.py --check
 .\.venv\Scripts\python.exe main.py --check-deps
 ```
@@ -30,6 +31,8 @@ Gọi trực tiếp Python trong `.venv` giúp không cần đổi execution pol
 hoạt môi trường. Trong VS Code, dùng **Python: Select Interpreter** để chọn
 `.venv\Scripts\python.exe`. Thư viện được liệt kê chưa khóa phiên bản; sau khi
 chọn được môi trường chung và kiểm tra đầy đủ, nhóm ghi lại phiên bản đã dùng.
+Phần Kiệt đã chạy trên Python 3.12.14; có thể cài bằng
+`python -m pip install -r requirements-kiet-tested.txt` để tái hiện phiên bản.
 
 Nếu đã kích hoạt đúng môi trường, có thể dùng `python` thay đường dẫn đầy đủ.
 Nếu thiếu `py`, dùng `python -m venv .venv`. Nếu thiếu `tkinter`, kiểm tra thành
@@ -37,25 +40,36 @@ phần Tcl/Tk trong bộ cài Python; không cài `tkinter` bằng pip.
 
 ## Lệnh hiện có
 
-| Lệnh | Ý nghĩa ở giai đoạn bộ khung |
+| Lệnh | Tác dụng |
 | --- | --- |
 | `python main.py` | In tên đề tài, trạng thái và hướng dẫn |
 | `python main.py --check` | Nhập module, kiểm tra các hàm đã khai báo; không gọi thuật toán |
 | `python main.py --check-deps` | Kiểm tra NumPy, Pillow, OpenCV và Tkinter trong môi trường hiện tại |
-| `python main.py --gui` | Hiện thông báo chưa triển khai, mã thoát 2; chưa mở giao diện |
+| `python main.py --gui` | Mở cửa sổ chuyển ảnh thành tranh nét |
 
-Mã thoát `0` của `--check` chỉ xác nhận việc nhập module/tên hàm. Nó không có
-nghĩa ứng dụng chuyển ảnh đã hoạt động. Mã thoát `1` báo lỗi kiểm tra hoặc thiếu
-thư viện. Việc gọi thuật toán hiện phải dừng bằng lỗi chưa triển khai.
+Mã thoát `0` của `--check` xác nhận việc nhập module và tên hàm.
+Mã thoát `1` báo lỗi kiểm tra hoặc thiếu thư viện.
+
+Chạy bộ kiểm thử của cả nhóm.
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Demo phân ngưỡng trên ma trận số, chưa tính biên từ ảnh:
+
+```powershell
+.\.venv\Scripts\python.exe demo_kiet.py --magnitude data/test_matrices/threshold_3x5.csv
+```
 
 ## Cấu trúc
 
 ```text
 tranh_ve/
-  main.py                  Điểm chạy và kiểm tra bộ khung
-  ui.py                    Khai báo giao diện
-  image_io.py              Khai báo đọc/lưu
-  pipeline.py              Khai báo bộ điều phối và PipelineResult
+  main.py                  Điểm chạy và kiểm tra môi trường
+  ui.py                    Giao diện Tkinter và hộp thoại mở/lưu
+  image_io.py              Đọc/lưu ảnh đã triển khai
+  pipeline.py              Luồng xử lý và PipelineResult
   processing/
     __init__.py
     grayscale.py           Chuyển mức xám
@@ -66,10 +80,10 @@ tranh_ve/
     __init__.py
     reference.py           Nhánh OpenCV tham chiếu
     benchmark.py           Đo thời gian
-  tests/                   Kế hoạch và nơi bổ sung kiểm thử
+  tests/                   Kiểm thử của cả nhóm
   data/
     test_matrices/         Ma trận đầu vào có sẵn
-    test_images/           Nơi nhóm bổ sung ảnh và ghi nguồn
+    test_images/           Ảnh kiểm thử và manifest nguồn
   results/                 Nơi lưu kết quả thực tế
   docs/
     INTERFACES.md          Quy ước bắt buộc để ghép module

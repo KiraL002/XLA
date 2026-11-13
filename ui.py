@@ -1,7 +1,6 @@
 """Giao diện Tkinter: bố cục, vùng xem ảnh, điều khiển tham số và nút bấm.
 
-Phụ trách bố cục: Long. Hàm sự kiện mở/lưu (on_open_clicked, on_save_clicked)
-là chỗ Kiệt nối image_io; bản dưới đây là bản chạy được để cả nhóm thử sớm.
+Bố cục của Long sử dụng các hộp thoại mở và lưu của Kiệt.
 
 Xử lý chỉ chạy khi bấm nút "Xử lý" để tránh chạy lại liên tục trên ảnh lớn.
 Ảnh hiển thị được thu nhỏ CHỈ để xem; dữ liệu đem lưu/đo luôn là mảng gốc.
@@ -11,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-import image_io
+from image_io import load_rgb, save_sketch
 from pipeline import ALLOWED_KSIZES, PipelineResult, magnitude_preview, run_pipeline
 
 DEFAULT_KSIZE = 3
@@ -36,6 +35,43 @@ VIEWS = (
     ("Tranh nét", "sketch"),
 )
 THRESHOLD_MAX = 500.0  # chỉ là giới hạn thanh trượt; M thô có thể lớn hơn
+
+
+def open_image_dialog(parent: tk.Misc) -> np.ndarray | None:
+    """Chọn và đọc ảnh, trả None khi hủy hoặc có lỗi."""
+    filename = filedialog.askopenfilename(
+        parent=parent,
+        title="Mở ảnh JPG hoặc PNG",
+        filetypes=[("Ảnh JPG và PNG", "*.jpg *.jpeg *.png"), ("Mọi tệp", "*.*")],
+    )
+    if not filename:
+        return None
+    try:
+        return load_rgb(filename)
+    except (OSError, ValueError) as exc:
+        messagebox.showerror("Không mở được ảnh", str(exc), parent=parent)
+        return None
+
+
+def save_sketch_dialog(sketch: np.ndarray | None, parent: tk.Misc) -> bool:
+    """Chọn nơi lưu tranh, trả True khi ghi thành công."""
+    if sketch is None:
+        messagebox.showerror("Chưa có tranh", "Hãy xử lý ảnh trước khi lưu.", parent=parent)
+        return False
+    filename = filedialog.asksaveasfilename(
+        parent=parent,
+        title="Lưu tranh PNG",
+        defaultextension=".png",
+        filetypes=[("Ảnh PNG", "*.png")],
+    )
+    if not filename:
+        return False
+    try:
+        save_sketch(filename, sketch)
+    except (OSError, ValueError) as exc:
+        messagebox.showerror("Không lưu được tranh", str(exc), parent=parent)
+        return False
+    return True
 
 
 def to_display_array(key: str, rgb, result: PipelineResult | None):
@@ -72,6 +108,8 @@ class App:
         self.status_var = tk.StringVar(value="Hãy mở một ảnh JPG hoặc PNG.")
 
         self._build_layout()
+        self.ksize_var.trace_add("write", self._on_params_changed)
+        self.threshold_var.trace_add("write", self._on_params_changed)
 
     # ------------------------------------------------------------------ bố cục
     def _build_layout(self) -> None:
@@ -139,10 +177,10 @@ class App:
     def _current_key(self) -> str:
         label = self.view_var.get()
         return next(key for lab, key in VIEWS if lab == label)
-    
+
     def _on_view_selected(self, _event=None) -> None:
         self.view_combo.selection_clear()
-        self.canvas.focus_set()  
+        self.canvas.focus_set()
         self.refresh_view()
 
     def refresh_view(self) -> None:
@@ -177,44 +215,40 @@ class App:
         return ksize, threshold
 
     # ------------------------------------------------------------ hàm sự kiện
+    def _on_params_changed(self, *_args) -> None:
+        if self.result is not None:
+            self.result = None
+            self.btn_save.config(state=tk.DISABLED)
+            self.status_var.set("Tham số đã đổi. Bấm Xử lý để tạo tranh mới.")
+            self.refresh_view()
+
     def on_open_clicked(self) -> None:
-        """Mở ảnh. Kiệt có thể tinh chỉnh thông báo lỗi/định dạng tệp tại đây."""
-        path = filedialog.askopenfilename(
-            title="Chọn ảnh",
-            filetypes=[("Ảnh JPG/PNG", "*.jpg *.jpeg *.png"), ("Tất cả", "*.*")],
-        )
-        if not path:  # người dùng hủy chọn tệp: không đổi trạng thái, không báo lỗi
-            return
-        try:
-            rgb = image_io.load_rgb(path)
-        except (OSError, ValueError) as exc:
-            messagebox.showerror("Không đọc được ảnh", str(exc))
-            return
-        except NotImplementedError:
-            messagebox.showerror("Chưa triển khai", "Hàm load_rgb chưa được triển khai.")
+        rgb = open_image_dialog(self.root)
+        if rgb is None:
             return
         self.rgb = rgb
         self.result = None
         self.btn_process.config(state=tk.NORMAL)
         self.btn_save.config(state=tk.DISABLED)
         self.view_var.set(VIEWS[0][0])
-        self.status_var.set(f"Đã mở: {path}  ({rgb.shape[1]}×{rgb.shape[0]})")
+        self.status_var.set(f"Đã mở ảnh {rgb.shape[1]}×{rgb.shape[0]}. Bấm Xử lý để tạo tranh.")
         self.refresh_view()
 
     def on_process_clicked(self) -> None:
         if self.rgb is None:
-            messagebox.showwarning("Chưa có ảnh", "Hãy mở ảnh trước khi xử lý.")
+            messagebox.showwarning("Chưa có ảnh", "Hãy mở ảnh trước khi xử lý.", parent=self.root)
             return
+        self.result = None
+        self.btn_save.config(state=tk.DISABLED)
         try:
             ksize, threshold = self._read_params()
             self.root.config(cursor="watch")
             self.root.update_idletasks()
             result = run_pipeline(self.rgb, ksize, threshold)
         except ValueError as exc:
-            messagebox.showerror("Tham số không hợp lệ", str(exc))
-            return
-        except NotImplementedError as exc:
-            messagebox.showerror("Chưa triển khai", f"Một bước xử lý chưa hoàn thành: {exc}")
+            self.status_var.set("Chưa tạo được tranh. Kiểm tra ảnh và tham số.")
+            self.refresh_view()
+            messagebox.showerror("Không xử lý được ảnh", str(exc), parent=self.root)
             return
         finally:
             self.root.config(cursor="")
@@ -229,24 +263,9 @@ class App:
         self.refresh_view()
 
     def on_save_clicked(self) -> None:
-        """Lưu tranh cuối ra PNG (mảng gốc, không phải ảnh đã thu nhỏ)."""
-        if self.result is None:
-            messagebox.showwarning("Chưa có tranh", "Hãy bấm Xử lý trước khi lưu.")
-            return
-        path = filedialog.asksaveasfilename(
-            title="Lưu tranh", defaultextension=".png", filetypes=[("PNG", "*.png")]
-        )
-        if not path:
-            return
-        try:
-            image_io.save_sketch(path, self.result["sketch"])
-        except (OSError, ValueError) as exc:
-            messagebox.showerror("Lưu thất bại", str(exc))
-            return
-        except NotImplementedError:
-            messagebox.showerror("Chưa triển khai", "Hàm save_sketch chưa được triển khai.")
-            return
-        self.status_var.set(f"Đã lưu: {path}")
+        sketch = None if self.result is None else self.result["sketch"]
+        if save_sketch_dialog(sketch, self.root):
+            self.status_var.set("Đã lưu tranh PNG.")
 
 
 def launch_app() -> None:

@@ -29,7 +29,8 @@ trong kiểm thử riêng. Không trả ảnh giả rồi báo luồng xử lý 
 ## Quản lý thay đổi
 
 Có thể dùng kho Git chung với các nhánh `hieu-filters`, `long-edges-ui`,
-`kiet-io-sketch`. Bộ khung chưa tự tạo kho Git hoặc đẩy mã lên dịch vụ nào.
+`kiet-io-sketch`. Kho `KiraL002/XLA` đã có bộ khung; phần Kiệt đang phát triển
+ở nhánh `kiet-io-sketch`.
 Không chia sẻ thư mục `.venv`; mỗi máy tự cài theo requirements.
 
 Mỗi lần bàn giao cần ghi tệp sửa, cách chạy thử, kết quả thực và vấn đề còn lại.

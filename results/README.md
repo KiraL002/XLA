@@ -1,6 +1,8 @@
 # Kết quả thực nghiệm
 
-Thư mục này hiện chưa có kết quả xử lý hoặc số liệu đo.
+Đã có `kiet/` chứa kết quả kiểm thử, mẫu ô màu và demo độc lập của Kiệt.
+Đây chưa phải tranh từ toàn bộ luồng xử lý ảnh. Xem
+`docs/KIET_KET_QUA_KIEM_THU.md` để biết dữ liệu và phạm vi kết luận.
 
 Sau khi chạy mã thật, lưu tranh PNG, ảnh trung gian và bảng đo. Mỗi bản ghi cần có
 mã ảnh, kích thước, k, T, phiên bản mã, thời gian hai nhánh, MAE, tỷ lệ điểm khác
