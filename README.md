@@ -4,10 +4,17 @@ Nhóm: **Hiếu, Long và Kiệt**. Dự án Python cho bài tập lớn môn X�
 
 ## Trạng thái hiện tại
 
-Đã có **bộ khung để chia việc**, gồm package, tên hàm, type hint, đặc tả dữ liệu,
-ma trận thử và hướng dẫn phối hợp. Các hàm xử lý, đọc/lưu, đo đạc, pipeline và
-giao diện **chưa triển khai** và sẽ báo `NotImplementedError` khi gọi.
-Chưa có ảnh kết quả, số liệu đo hoặc kiểm thử thuật toán đã chạy.
+**Đã triển khai phần Kiệt**: đọc/lưu, mức xám, phân ngưỡng, tạo tranh, tham chiếu
+mức xám OpenCV, hàm mở/lưu bằng hộp thoại và các kiểm thử tương ứng.
+Xem [hướng dẫn chạy riêng](docs/KIET_HUONG_DAN.md),
+[kết quả kiểm thử](docs/KIET_KET_QUA_KIEM_THU.md) và
+[nội dung báo cáo, thuyết trình](docs/KIET_BAO_CAO_VA_THUYET_TRINH.md).
+
+Đã chuẩn bị thêm bộ 18 ảnh có nguồn, kết quả mức xám, bảng theo dõi tích hợp
+và tài liệu luyện bảo vệ: [bắt đầu tại đây](docs/KIET_CHUAN_BI_TRONG_KHI_CHO.md).
+
+Lọc trung bình, Sobel, bộ điều phối, công cụ đo và bố cục giao diện vẫn là bộ
+khung. Chưa có ứng dụng chạy toàn luồng; `--gui` vẫn báo chưa triển khai.
 
 Luồng dự kiến: **RGB → mức xám → lọc trung bình → Sobel → phân ngưỡng → tranh nét**.
 Thuật toán chính tự viết bằng NumPy; OpenCV phục vụ nhánh đối chiếu.
@@ -30,6 +37,8 @@ Gọi trực tiếp Python trong `.venv` giúp không cần đổi execution pol
 hoạt môi trường. Trong VS Code, dùng **Python: Select Interpreter** để chọn
 `.venv\Scripts\python.exe`. Thư viện được liệt kê chưa khóa phiên bản; sau khi
 chọn được môi trường chung và kiểm tra đầy đủ, nhóm ghi lại phiên bản đã dùng.
+Phần Kiệt đã chạy trên Python 3.12.14; có thể cài bằng
+`python -m pip install -r requirements-kiet-tested.txt` để tái hiện phiên bản.
 
 Nếu đã kích hoạt đúng môi trường, có thể dùng `python` thay đường dẫn đầy đủ.
 Nếu thiếu `py`, dùng `python -m venv .venv`. Nếu thiếu `tkinter`, kiểm tra thành
@@ -46,15 +55,27 @@ phần Tcl/Tk trong bộ cài Python; không cài `tkinter` bằng pip.
 
 Mã thoát `0` của `--check` chỉ xác nhận việc nhập module/tên hàm. Nó không có
 nghĩa ứng dụng chuyển ảnh đã hoạt động. Mã thoát `1` báo lỗi kiểm tra hoặc thiếu
-thư viện. Việc gọi thuật toán hiện phải dừng bằng lỗi chưa triển khai.
+thư viện. Các module chưa cài đặt vẫn báo `NotImplementedError`.
+
+Chạy kiểm thử phần Kiệt:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Demo phân ngưỡng trên ma trận số, chưa tính biên từ ảnh:
+
+```powershell
+.\.venv\Scripts\python.exe demo_kiet.py --magnitude data/test_matrices/threshold_3x5.csv
+```
 
 ## Cấu trúc
 
 ```text
 tranh_ve/
   main.py                  Điểm chạy và kiểm tra bộ khung
-  ui.py                    Khai báo giao diện
-  image_io.py              Khai báo đọc/lưu
+  ui.py                    Khung giao diện và hàm hộp thoại mở/lưu
+  image_io.py              Đọc/lưu ảnh đã triển khai
   pipeline.py              Khai báo bộ điều phối và PipelineResult
   processing/
     __init__.py

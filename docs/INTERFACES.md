@@ -1,7 +1,7 @@
 # Quy ước giao tiếp chung
 
-Tài liệu này mô tả hợp đồng cần thực hiện; các hàm xử lý hiện chỉ khai báo và
-`raise NotImplementedError`. Type hint mô tả dữ liệu, chưa tự kiểm tra dữ liệu lúc chạy.
+Tài liệu này mô tả hợp đồng chung. Phần Kiệt đã triển khai kiểm tra dữ liệu;
+các phần còn lại giữ `NotImplementedError` đến khi được cài đặt.
 
 ## Dữ liệu và tham số
 
@@ -82,3 +82,15 @@ Khi so toàn luồng, ghi rõ nếu chuyển xám bằng OpenCV có sai khác c�
 trả `median_ms`, `min_ms`, `max_ms` sau khi triển khai. Không dùng số liệu giả.
 
 Trước khi thay đổi hợp đồng, trao đổi với cả nhóm và cập nhật tài liệu này.
+
+## Hộp thoại mở và lưu để ghép giao diện
+
+- `ui.open_image_dialog(parent)` trả RGB uint8 khi mở thành công, None khi
+  hủy/lỗi. UI giữ ảnh cũ nếu nhận None; xóa kết quả cũ khi nhận ảnh mới.
+- `ui.save_sketch_dialog(sketch, parent)` trả True khi ghi thành công; False
+  khi hủy/lỗi hoặc sketch là None. Truyền tranh gốc, không dùng bản xem trước.
+- Hai hàm không tạo cửa sổ chính; Long truyền cửa sổ Tkinter làm parent và
+  nối với nút bấm. Lỗi đọc/ghi được hiển thị bằng messagebox.
+- Ảnh PNG có alpha được ghép trên nền trắng; EXIF được sửa trước khi trả mảng.
+- `reference_grayscale` chuyển RGB thành float32 trước cvtColor, giữ miền
+  0–255 để tránh sai khác do ép kết quả xám về uint8.

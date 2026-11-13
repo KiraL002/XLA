@@ -1,1 +1,1 @@
-"""Nhánh đối chiếu và thực nghiệm; chưa có kết quả đo."""
+"""Nhánh đối chiếu và thực nghiệm; đã có tham chiếu chuyển mức xám."""

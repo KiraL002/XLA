@@ -1,7 +1,8 @@
 # Phân công và sản phẩm bàn giao
 
 Mỗi người phụ trách mã, kiểm thử, thực nghiệm, báo cáo và slide tương ứng cụm
-chức năng của mình. Các phần chuyên môn dưới đây hiện chưa được triển khai.
+chức năng của mình. Phần mã Kiệt đã có triển khai và kiểm thử; phần nối giao
+diện đầy đủ cần phối hợp với bố cục của Long. Xem `KIET_HUONG_DAN.md`.
 
 ## Hiếu
 

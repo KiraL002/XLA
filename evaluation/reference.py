@@ -1,7 +1,7 @@
 """Khai báo nhánh OpenCV tham chiếu, tách khỏi thuật toán chính.
 
 Mỗi người bổ sung hàm tương ứng theo lượt ghép, không cùng sửa tệp một lúc.
-Chưa gọi hoặc nhập cv2 cho đến khi triển khai phần tham chiếu.
+Chỉ nhập cv2 khi gọi hàm tham chiếu để các module chính có thể chạy độc lập.
 """
 
 from __future__ import annotations
@@ -13,8 +13,14 @@ from pipeline import PipelineResult
 
 
 def reference_grayscale(rgb: NDArray[np.uint8]) -> NDArray[np.float32]:
-    """Kiệt: đối chiếu chuyển mức xám bằng OpenCV theo thứ tự RGB."""
-    raise NotImplementedError("Kiệt phụ trách phần tham chiếu mức xám.")
+    """Kiệt: cvtColor COLOR_RGB2GRAY trên float32 để giữ phần thập phân."""
+    if not isinstance(rgb, np.ndarray) or rgb.dtype != np.uint8:
+        raise ValueError("Ảnh RGB phải là mảng NumPy uint8.")
+    if rgb.ndim != 3 or rgb.shape[2] != 3 or min(rgb.shape[:2]) == 0:
+        raise ValueError("Ảnh RGB phải có dạng (H, W, 3) với H, W dương.")
+    import cv2
+
+    return cv2.cvtColor(rgb.astype(np.float32), cv2.COLOR_RGB2GRAY)
 
 
 def reference_mean_filter(

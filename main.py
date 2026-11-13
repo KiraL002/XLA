@@ -18,7 +18,7 @@ MODULE_INTERFACES = {
     "processing.edges": ("sobel_magnitude",),
     "processing.sketch": ("threshold_edges", "render_sketch"),
     "pipeline": ("run_pipeline",),
-    "ui": ("launch_app",),
+    "ui": ("launch_app", "open_image_dialog", "save_sketch_dialog"),
     "evaluation.reference": (
         "reference_grayscale",
         "reference_mean_filter",
@@ -47,7 +47,7 @@ def check_imports() -> int:
         else:
             print(f"[OK] {module_name}")
     if not failed:
-        print("Nhập module thành công. Thuật toán và giao diện vẫn chưa triển khai.")
+        print("Nhập module thành công. Xem README.md để biết phần đã triển khai.")
     return int(failed)
 
 
@@ -92,7 +92,7 @@ def main() -> int:
         return 0
 
     print(PROJECT_TITLE)
-    print("Trạng thái: bộ khung, chưa có thuật toán và giao diện hoàn chỉnh.")
+    print("Đã có đọc/lưu, mức xám và tạo tranh của Kiệt; chưa tích hợp toàn hệ thống.")
     print("Kiểm tra cấu trúc: python main.py --check")
     print("Kiểm tra thư viện: python main.py --check-deps")
     print("Bắt đầu đọc README.md và docs/INTERFACES.md.")
