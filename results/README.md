@@ -1,13 +1,13 @@
-# Kết quả thực nghiệm
+# Kết quả chạy
 
-Đã có `kiet/` chứa kết quả kiểm thử, mẫu ô màu và demo độc lập của Kiệt.
-Đây chưa phải tranh từ toàn bộ luồng xử lý ảnh. Xem
-`docs/KIET_KET_QUA_KIEM_THU.md` để biết dữ liệu và phạm vi kết luận.
+Chạy từ thư mục dự án:
 
-Sau khi chạy mã thật, lưu tranh PNG, ảnh trung gian và bảng đo. Mỗi bản ghi cần có
-mã ảnh, kích thước, k, T, phiên bản mã, thời gian hai nhánh, MAE, tỷ lệ điểm khác
-và nhận xét. Ghi cấu hình máy và cách đo để thành viên khác chạy lại được.
+```powershell
+.\.venv\Scripts\python.exe -m tools.evaluate_sketch
+```
 
-Các tệp sinh ra trong thư mục này được bỏ qua bởi `.gitignore` để tránh đưa nhầm
-ảnh lớn hoặc số liệu tạm lên kho Git. Khi chốt bản nộp, nhóm chủ động chọn và
-đóng gói kết quả đã kiểm tra.
+`sketch_evaluation/` nhận bảng đối chiếu OpenCV và ảnh minh họa các bước,
+làm mảnh nét, tranh chì có sắc độ. Các tệp sinh ra được bỏ qua bởi Git.
+
+Lệnh `python -m tools.prepare_test_data` tạo lại bộ ảnh thử và lưu ảnh tổng
+hợp bộ dữ liệu trong `dataset/`.

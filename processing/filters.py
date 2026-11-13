@@ -1,4 +1,4 @@
-"""Bộ lọc trung bình tự cài đặt. Phụ trách: Hiếu."""
+"""Bộ lọc trung bình và trung vị tự cài đặt bằng NumPy."""
 
 from __future__ import annotations
 
@@ -6,14 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-def mean_filter(gray: NDArray[np.float32], ksize: int = 3) -> NDArray[np.float32]:
-    """Làm mịn ảnh xám bằng trung bình vùng ksize×ksize.
-
-    Nhận/trả (H, W), float32, giá trị hữu hạn trong [0, 255].
-    Chỉ nhận ksize là số nguyên 3 hoặc 5. Bù rìa bằng mode='edge'.
-    Giữ kích thước, không sửa gray, không gọi bộ lọc có sẵn của thư viện.
-    Đầu vào sai phải báo ValueError khi triển khai.
-    """
+def _validate_gray(gray: NDArray[np.float32]) -> None:
     if not isinstance(gray, np.ndarray):
         raise ValueError("gray phải là một mảng NumPy.")
     if gray.ndim != 2 or gray.shape[0] <= 0 or gray.shape[1] <= 0:
@@ -24,6 +17,11 @@ def mean_filter(gray: NDArray[np.float32], ksize: int = 3) -> NDArray[np.float32
         raise ValueError("gray chỉ được chứa các giá trị hữu hạn.")
     if np.any((gray < 0.0) | (gray > 255.0)):
         raise ValueError("Các giá trị trong gray phải nằm trong [0, 255].")
+
+
+def mean_filter(gray: NDArray[np.float32], ksize: int = 3) -> NDArray[np.float32]:
+    """Lọc trung bình 3×3 hoặc 5×5 trên ảnh xám float32, bù rìa bằng lặp pixel."""
+    _validate_gray(gray)
     if isinstance(ksize, (bool, np.bool_)) or not isinstance(ksize, (int, np.integer)):
         raise ValueError("ksize phải là số nguyên 3 hoặc 5.")
     if ksize not in (3, 5):
@@ -45,3 +43,16 @@ def mean_filter(gray: NDArray[np.float32], ksize: int = 3) -> NDArray[np.float32
 
     total /= np.float32(ksize * ksize)
     return total
+
+
+def median_filter_3x3(gray: NDArray[np.float32]) -> NDArray[np.float32]:
+    """Lấy trung vị của 9 pixel quanh mỗi điểm để giảm nhiễu xung."""
+    _validate_gray(gray)
+    padded = np.pad(gray, 1, mode="edge")
+    windows = np.lib.stride_tricks.sliding_window_view(padded, (3, 3))
+    result = np.empty_like(gray)
+    # Tính theo dải hàng để giới hạn mảng tạm trên ảnh độ phân giải cao.
+    for start in range(0, gray.shape[0], 128):
+        rows = slice(start, start + 128)
+        result[rows] = np.median(windows[rows], axis=(-2, -1))
+    return result

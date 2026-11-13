@@ -55,7 +55,7 @@ class UIDialogTests(unittest.TestCase):
         sketch = np.zeros((1, 1), np.uint8)
         self.choose_save.return_value = 'out.png'
         self.assertTrue(save_sketch_dialog(sketch, self.parent))
-        self.save.assert_called_once_with('out.png', sketch)
+        self.save.assert_called_once_with('out.png', sketch, allow_gray=False)
         self.show_error.assert_not_called()
 
     def test_save_failure(self):

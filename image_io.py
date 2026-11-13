@@ -1,4 +1,4 @@
-"""Đọc JPG/PNG và lưu tranh nhị phân bằng Pillow. Phụ trách: Kiệt."""
+"""Đọc JPG/PNG và lưu tranh PNG bằng Pillow."""
 
 from __future__ import annotations
 
@@ -47,8 +47,10 @@ def load_rgb(path: str | PathLike[str]) -> NDArray[np.uint8]:
         return np.array(rgb_image, dtype=np.uint8, copy=True)
 
 
-def save_sketch(path: str | PathLike[str], sketch: NDArray[np.uint8]) -> None:
-    """Lưu tranh (H, W), uint8, giá trị 0/255 ra PNG.
+def save_sketch(
+    path: str | PathLike[str], sketch: NDArray[np.uint8], *, allow_gray: bool = False
+) -> None:
+    """Lưu tranh (H, W) uint8 ra PNG, chấp nhận nhiều mức xám nếu allow_gray=True.
 
     Không thay đổi sketch. Báo lỗi cho mã gọi nếu dữ liệu sai hoặc lưu thất bại.
     Phần mở hộp thoại và thông báo nằm ở giao diện.
@@ -57,7 +59,7 @@ def save_sketch(path: str | PathLike[str], sketch: NDArray[np.uint8]) -> None:
         raise ValueError("Tranh phải là mảng NumPy uint8.")
     if sketch.ndim != 2 or sketch.size == 0:
         raise ValueError("Tranh phải có dạng (H, W) với H, W dương.")
-    if not ((sketch == 0) | (sketch == 255)).all():
+    if not allow_gray and not ((sketch == 0) | (sketch == 255)).all():
         raise ValueError("Tranh chỉ được chứa giá trị 0 và 255.")
     destination = _path(path)
     if destination.suffix.lower() != ".png":

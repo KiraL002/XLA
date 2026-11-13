@@ -109,6 +109,15 @@ class ImageIOTests(unittest.TestCase):
                     save_sketch(target, value)
                 self.assertEqual(target.read_bytes(), b'keep existing contents')
 
+    def test_save_preserves_pencil_tones(self):
+        pencil = np.array([[0, 65, 127, 220, 255]], dtype=np.uint8)
+        path = self.root / 'pencil.png'
+        save_sketch(path, pencil, allow_gray=True)
+
+        with Image.open(path) as result:
+            self.assertEqual(result.mode, 'L')
+            np.testing.assert_array_equal(np.asarray(result), pencil)
+
     def test_save_rejects_wrong_extension(self):
         with self.assertRaises(ValueError):
             save_sketch(self.root / 'wrong.jpg', np.zeros((1, 1), np.uint8))

@@ -1,6 +1,4 @@
-"""Kiểm thử bộ điều phối (Long). Chạy: python -m unittest tests.test_pipeline -v
-
-"""
+"""Kiểm thử bộ điều phối xử lý ảnh."""
 
 import unittest
 from unittest import mock
@@ -127,6 +125,56 @@ class TestRealModules(unittest.TestCase):
         out = self._run(np.full((10, 10, 3), 80, np.uint8))
         self.assertFalse(np.any(out["edges"]))
         self.assertTrue(np.all(out["sketch"] == 255))
+
+    def test_optional_thinning_changes_only_the_final_sketch(self):
+        rgb = np.zeros((16, 16, 3), np.uint8)
+        rgb[:, 8:] = 255
+        baseline = run_pipeline(rgb)
+        thinned = run_pipeline(rgb, thin=True)
+
+        self.assertEqual(tuple(thinned), RESULT_KEYS)
+        for key in ("gray", "smooth", "magnitude", "edges"):
+            np.testing.assert_array_equal(baseline[key], thinned[key])
+        remaining = thinned["sketch"] == 0
+        self.assertTrue(remaining.any())
+        self.assertLess(remaining.sum(), baseline["edges"].sum())
+        self.assertFalse(np.any(remaining & ~baseline["edges"]))
+
+    def test_pencil_retains_tones_in_regions_without_detected_edges(self):
+        rgb = np.full((18, 24, 3), 60, dtype=np.uint8)
+        rgb[:, 12:] = 210
+        pencil = run_pipeline(rgb, threshold=2000, mode="pencil")
+        sketch = pencil["sketch"]
+
+        self.assertEqual(tuple(pencil), RESULT_KEYS)
+        self.assertEqual(sketch.shape, rgb.shape[:2])
+        self.assertEqual(sketch.dtype, np.uint8)
+        self.assertFalse(pencil["edges"].any())
+        self.assertLess(sketch[:, :5].mean(), sketch[:, -5:].mean())
+        self.assertTrue(np.any((sketch > 0) & (sketch < 255)))
+
+    def test_pencil_filters_out_an_isolated_bright_pixel(self):
+        rgb = np.full((9, 9, 3), 90, dtype=np.uint8)
+        clean = run_pipeline(rgb, mode="pencil")
+        rgb[4, 4] = 255
+        noisy = run_pipeline(rgb, mode="pencil")
+
+        self.assertGreater(noisy["gray"][4, 4], clean["gray"][4, 4])
+        np.testing.assert_array_equal(noisy["sketch"], clean["sketch"])
+
+    def test_pencil_uniform_white_pixel_stays_white(self):
+        rgb = np.full((1, 1, 3), 255, dtype=np.uint8)
+        np.testing.assert_array_equal(run_pipeline(rgb, mode="pencil")["sketch"], [[255]])
+
+    def test_pencil_keeps_hatching_when_threshold_removes_all_accent_lines(self):
+        rgb = np.zeros((24, 24, 3), dtype=np.uint8)
+        plain = run_pipeline(rgb, threshold=2000, mode="pencil")
+        thin = run_pipeline(rgb, threshold=2000, thin=True, mode="pencil")
+
+        self.assertFalse(plain["edges"].any())
+        self.assertGreater(np.ptp(plain["sketch"].astype(int)), 50)
+        self.assertLessEqual(int(plain["sketch"].max()), 220)
+        np.testing.assert_array_equal(plain["sketch"], thin["sketch"])
 
     def test_higher_threshold_not_more_edges(self):
         rng = np.random.default_rng(3)

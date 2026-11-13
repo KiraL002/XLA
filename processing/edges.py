@@ -1,8 +1,6 @@
 """Phát hiện biên bằng toán tử Sobel (tự cài đặt bằng NumPy).
 
-Phụ trách: Long.
-
-Quy ước (khớp kế hoạch nhóm):
+Quy ước:
   * Đầu vào  : ảnh mức xám H×W, số thực hữu hạn (thường float32, 0–255).
   * Rìa ảnh  : np.pad(mode="edge"), tương ứng cv2.BORDER_REPLICATE.
   * Phép tính: tương quan (không lật kernel), tương ứng cv2.Sobel / cv2.filter2D.

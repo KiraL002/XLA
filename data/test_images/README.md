@@ -9,9 +9,7 @@ SHA256 và seed trong `manifest.csv`. Ba ảnh gốc astronaut/coffee/grass cùn
 các biến thể thuộc tuning (9 ảnh); chelsea/camera/rocket thuộc evaluation (9 ảnh).
 Các biến thể của một ảnh luôn cùng nhóm. Không có dữ liệu huấn luyện mô hình.
 
-Tuning dùng chọn k/T sau khi có pipeline; evaluation dùng đánh giá cấu hình
-đã chốt. Việc kiểm tra mức xám trên cả 18 ảnh không chọn k/T và không là đánh
-giá toàn hệ thống. Tránh điều chỉnh cấu hình dựa vào ảnh evaluation.
+Dùng nhóm tuning để chọn k/T và nhóm evaluation để đánh giá cấu hình đã chốt.
 
 Nguồn gốc và ghi công tại `data/source_images/SOURCES.md` và `sources.json`.
 Tệp ảnh gốc được kiểm SHA256 theo registry scikit-image v0.25.2 trước khi tạo
@@ -26,5 +24,3 @@ Tái tạo offline từ sáu ảnh đã tải (ghi lại các biến thể và m
 
 Chỉ dùng `--download` nếu cần tải lại dữ liệu qua Internet. Script không cần
 cài scikit-image, chỉ dùng NumPy/Pillow và thư viện chuẩn.
-
-Không dùng ảnh kết quả trong báo cáo tham khảo làm kết quả của nhóm.

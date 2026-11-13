@@ -1,4 +1,0 @@
-# Python 3.12.14, Windows; các phiên bản đã chạy kiểm thử phần Kiệt.
-numpy==2.5.4
-opencv-python==5.0.0.93
-Pillow==13.0.0

@@ -126,7 +126,7 @@ def main() -> int:
             thumb = image.convert('RGB'); thumb.thumbnail((330, 170))
             sheet.paste(thumb, (x + (350 - thumb.width) // 2, y + 30))
         draw.text((x + 10, y + 5), f"{row['image_id']} {row['base_id']} / {row['condition']} / {row['split']}", fill='black')
-    output = ROOT / 'results/kiet_preparation'
+    output = ROOT / 'results/dataset'
     output.mkdir(parents=True, exist_ok=True)
     sheet.save(output / 'dataset_contact_sheet.jpg', quality=90)
     print('Đã chuẩn bị 18 ảnh: 9 tuning, 9 evaluation; 6 ảnh gốc độc lập.')

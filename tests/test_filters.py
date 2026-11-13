@@ -1,4 +1,4 @@
-"""Kiểm thử bộ lọc trung bình do Hiếu phụ trách."""
+"""Kiểm thử bộ lọc trung bình."""
 
 from __future__ import annotations
 

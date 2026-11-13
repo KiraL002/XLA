@@ -1,4 +1,4 @@
-"""Kiểm thử Sobel (Long). Chạy: python -m unittest tests.test_edges -v
+"""Kiểm thử toán tử Sobel.
 
 Dữ liệu là mảng xác định trước/tự tạo, dùng kiểm tra số học,
 không phải kết quả thực nghiệm trên ảnh thật.

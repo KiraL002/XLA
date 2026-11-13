@@ -1,7 +1,5 @@
 """Giao diện Tkinter: bố cục, vùng xem ảnh, điều khiển tham số và nút bấm.
 
-Bố cục của Long sử dụng các hộp thoại mở và lưu của Kiệt.
-
 Xử lý chỉ chạy khi bấm nút "Xử lý" để tránh chạy lại liên tục trên ảnh lớn.
 Ảnh hiển thị được thu nhỏ CHỈ để xem; dữ liệu đem lưu/đo luôn là mảng gốc.
 """
@@ -11,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from image_io import load_rgb, save_sketch
-from pipeline import ALLOWED_KSIZES, PipelineResult, magnitude_preview, run_pipeline
+from pipeline import ALLOWED_KSIZES, PipelineResult, SketchMode, magnitude_preview, run_pipeline
 
 DEFAULT_KSIZE = 3
 DEFAULT_THRESHOLD = 100.0
@@ -32,8 +30,9 @@ VIEWS = (
     ("Làm mịn", "smooth"),
     ("Độ lớn gradient (xem trước)", "magnitude"),
     ("Mặt nạ biên", "edges"),
-    ("Tranh nét", "sketch"),
+    ("Tranh kết quả", "sketch"),
 )
+MODES: dict[str, SketchMode] = {"Tranh nét": "line", "Tranh chì có sắc độ": "pencil"}
 THRESHOLD_MAX = 500.0  # chỉ là giới hạn thanh trượt; M thô có thể lớn hơn
 
 
@@ -53,7 +52,9 @@ def open_image_dialog(parent: tk.Misc) -> np.ndarray | None:
         return None
 
 
-def save_sketch_dialog(sketch: np.ndarray | None, parent: tk.Misc) -> bool:
+def save_sketch_dialog(
+    sketch: np.ndarray | None, parent: tk.Misc, *, allow_gray: bool = False
+) -> bool:
     """Chọn nơi lưu tranh, trả True khi ghi thành công."""
     if sketch is None:
         messagebox.showerror("Chưa có tranh", "Hãy xử lý ảnh trước khi lưu.", parent=parent)
@@ -67,7 +68,7 @@ def save_sketch_dialog(sketch: np.ndarray | None, parent: tk.Misc) -> bool:
     if not filename:
         return False
     try:
-        save_sketch(filename, sketch)
+        save_sketch(filename, sketch, allow_gray=allow_gray)
     except (OSError, ValueError) as exc:
         messagebox.showerror("Không lưu được tranh", str(exc), parent=parent)
         return False
@@ -94,7 +95,7 @@ def to_display_array(key: str, rgb, result: PipelineResult | None):
 class App:
     def __init__(self, root) -> None:
         self.root = root
-        root.title("Chuyển ảnh thành tranh nét - Xử lý ảnh")
+        root.title("Chuyển ảnh thành tranh vẽ - Xử lý ảnh")
         root.geometry("1000x700")
         root.minsize(720, 520)
 
@@ -104,12 +105,16 @@ class App:
 
         self.ksize_var = tk.IntVar(value=DEFAULT_KSIZE)
         self.threshold_var = tk.DoubleVar(value=DEFAULT_THRESHOLD)
+        self.thin_var = tk.BooleanVar(value=False)
+        self.mode_var = tk.StringVar(value=next(iter(MODES)))
         self.view_var = tk.StringVar(value=VIEWS[0][0])
         self.status_var = tk.StringVar(value="Hãy mở một ảnh JPG hoặc PNG.")
 
         self._build_layout()
         self.ksize_var.trace_add("write", self._on_params_changed)
         self.threshold_var.trace_add("write", self._on_params_changed)
+        self.thin_var.trace_add("write", self._on_params_changed)
+        self.mode_var.trace_add("write", self._on_params_changed)
 
     # ------------------------------------------------------------------ bố cục
     def _build_layout(self) -> None:
@@ -135,7 +140,7 @@ class App:
                 bar, text=f"{k}×{k}", value=k, variable=self.ksize_var
             ).pack(side=tk.LEFT, padx=2)
 
-        ttk.Label(bar, text="  Ngưỡng:").pack(side=tk.LEFT)
+        ttk.Label(bar, text="  Ngưỡng biên:").pack(side=tk.LEFT)
         self.threshold_scale = ttk.Scale(
             bar, from_=0.0, to=THRESHOLD_MAX, variable=self.threshold_var,
             orient=tk.HORIZONTAL, length=180,
@@ -157,11 +162,21 @@ class App:
 
         view_bar = ttk.Frame(self.root, padding=(6, 0))
         view_bar.pack(side=tk.TOP, fill=tk.X)
-        ttk.Label(view_bar, text="Xem:").pack(side=tk.LEFT)
+        ttk.Label(view_bar, text="Kiểu tranh:").pack(side=tk.LEFT)
+        self.mode_combo = ttk.Combobox(
+            view_bar, state="readonly", width=20,
+            values=tuple(MODES), textvariable=self.mode_var,
+        )
+        self.mode_combo.pack(side=tk.LEFT, padx=(4, 10))
         self.view_combo = ttk.Combobox(
             view_bar, state="readonly", width=32,
             values=[label for label, _ in VIEWS], textvariable=self.view_var,
         )
+        self.thin_checkbox = ttk.Checkbutton(
+            view_bar, text="Làm mảnh nét", variable=self.thin_var
+        )
+        self.thin_checkbox.pack(side=tk.LEFT, padx=8)
+        ttk.Label(view_bar, text="Xem:").pack(side=tk.LEFT)
         self.view_combo.pack(side=tk.LEFT, padx=4)
         self.view_combo.bind("<<ComboboxSelected>>", self._on_view_selected)
 
@@ -244,7 +259,9 @@ class App:
             ksize, threshold = self._read_params()
             self.root.config(cursor="watch")
             self.root.update_idletasks()
-            result = run_pipeline(self.rgb, ksize, threshold)
+            thin = self.thin_var.get()
+            mode = MODES[self.mode_var.get()]
+            result = run_pipeline(self.rgb, ksize, threshold, thin=thin, mode=mode)
         except ValueError as exc:
             self.status_var.set("Chưa tạo được tranh. Kiểm tra ảnh và tham số.")
             self.refresh_view()
@@ -256,15 +273,23 @@ class App:
         self.btn_save.config(state=tk.NORMAL)
         self.view_var.set(VIEWS[-1][0])
         n_edge = int(result["edges"].sum())
+        count = f"{n_edge} điểm biên ({n_edge / result['edges'].size:.1%})"
+        if mode == "pencil":
+            count = f"{n_edge} điểm đủ ngưỡng để nhấn nét"
+            if thin:
+                count += ", đã làm mảnh nét nhấn"
+        elif thin:
+            n_stroke = int(np.count_nonzero(result["sketch"] == 0))
+            count = f"làm mảnh {n_edge} → {n_stroke} điểm nét"
         self.status_var.set(
-            f"Xong: cửa sổ {ksize}×{ksize}, ngưỡng {threshold:g}, "
-            f"{n_edge} điểm biên ({n_edge / result['edges'].size:.1%})."
+            f"Xong: cửa sổ {ksize}×{ksize}, ngưỡng {threshold:g}, {count}."
         )
         self.refresh_view()
 
     def on_save_clicked(self) -> None:
         sketch = None if self.result is None else self.result["sketch"]
-        if save_sketch_dialog(sketch, self.root):
+        allow_gray = MODES[self.mode_var.get()] == "pencil"
+        if save_sketch_dialog(sketch, self.root, allow_gray=allow_gray):
             self.status_var.set("Đã lưu tranh PNG.")
 
 

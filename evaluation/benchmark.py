@@ -1,4 +1,4 @@
-"""Công cụ đo thời gian chạy thuật toán. Phụ trách: Hiếu."""
+"""Công cụ đo thời gian chạy thuật toán."""
 
 from __future__ import annotations
 

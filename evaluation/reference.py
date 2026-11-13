@@ -9,7 +9,7 @@ from pipeline import PipelineResult, validate_params, validate_rgb
 
 
 def reference_grayscale(rgb: NDArray[np.uint8]) -> NDArray[np.float32]:
-    """Kiệt: cvtColor COLOR_RGB2GRAY trên float32 để giữ phần thập phân."""
+    """Dùng COLOR_RGB2GRAY trên float32 để giữ phần thập phân."""
     if not isinstance(rgb, np.ndarray) or rgb.dtype != np.uint8:
         raise ValueError("Ảnh RGB phải là mảng NumPy uint8.")
     if rgb.ndim != 3 or rgb.shape[2] != 3 or min(rgb.shape[:2]) == 0:
@@ -22,7 +22,7 @@ def reference_grayscale(rgb: NDArray[np.uint8]) -> NDArray[np.float32]:
 def reference_mean_filter(
     gray: NDArray[np.float32], ksize: int = 3
 ) -> NDArray[np.float32]:
-    """Hiếu: lọc trung bình OpenCV với cùng ksize và BORDER_REPLICATE."""
+    """Lọc trung bình OpenCV với cùng ksize và BORDER_REPLICATE."""
     if not isinstance(gray, np.ndarray):
         raise ValueError("gray phải là một mảng NumPy.")
     if gray.ndim != 2 or gray.shape[0] <= 0 or gray.shape[1] <= 0:
@@ -51,7 +51,7 @@ def reference_mean_filter(
 def reference_sobel_gradients(
     gray: NDArray[np.float32],
 ) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
-    """Long: (Gx, Gy) từ cv2.Sobel CV_32F, kernel 3×3, BORDER_REPLICATE.
+    """Tính (Gx, Gy) bằng cv2.Sobel CV_32F, kernel 3×3, BORDER_REPLICATE.
 
     Dùng để đối chiếu Gx, Gy trước khi so độ lớn hoặc tranh cuối.
     """
@@ -64,7 +64,7 @@ def reference_sobel_gradients(
 
 
 def reference_sobel_magnitude(gray: NDArray[np.float32]) -> NDArray[np.float32]:
-    """Long: Sobel OpenCV CV_32F, kernel 3×3, BORDER_REPLICATE; trả M thô float32."""
+    """Tính độ lớn Sobel thô bằng OpenCV, kiểu float32."""
     import cv2
 
     gx, gy = reference_sobel_gradients(gray)
@@ -74,7 +74,7 @@ def reference_sobel_magnitude(gray: NDArray[np.float32]) -> NDArray[np.float32]:
 def run_reference_pipeline(
     rgb: NDArray[np.uint8], ksize: int = 3, threshold: float = 100.0
 ) -> PipelineResult:
-    """Long tích hợp nhánh tham chiếu; giữ cùng quy tắc phân ngưỡng và tạo tranh.
+    """Chạy nhánh tham chiếu với cùng quy tắc phân ngưỡng và tạo tranh.
 
     Ghi rõ sai khác mức xám nếu dùng cv2.cvtColor. Đối chiếu riêng các bộ lọc
     phải dùng cùng một ảnh xám để sai số mức xám không lan sang bước sau.

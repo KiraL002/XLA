@@ -1,21 +1,22 @@
-"""Giao tiếp bộ điều phối các bước xử lý. Phụ trách: Long."""
+"""Điều phối các bước chuyển ảnh thành tranh."""
 
 from __future__ import annotations
 
 import math
 from numbers import Real
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 import numpy as np
 from numpy.typing import NDArray
 
 from processing.edges import sobel_magnitude
-from processing.filters import mean_filter
+from processing.filters import mean_filter, median_filter_3x3
 from processing.grayscale import to_grayscale
-from processing.sketch import render_sketch, threshold_edges
+from processing.sketch import render_pencil, render_sketch, thin_edges, threshold_edges
 
 ALLOWED_KSIZES = (3, 5)
 RESULT_KEYS = ("gray", "smooth", "magnitude", "edges", "sketch")
+SketchMode = Literal["line", "pencil"]
 
 
 class PipelineResult(TypedDict):
@@ -58,7 +59,12 @@ def validate_rgb(rgb: NDArray[np.uint8]) -> None:
 
 
 def run_pipeline(
-    rgb: NDArray[np.uint8], ksize: int = 3, threshold: float = 100.0
+    rgb: NDArray[np.uint8],
+    ksize: int = 3,
+    threshold: float = 100.0,
+    *,
+    thin: bool = False,
+    mode: SketchMode = "line",
 ) -> PipelineResult:
     """Nối mức xám → làm mịn → Sobel → phân ngưỡng → tạo tranh.
 
@@ -66,15 +72,24 @@ def run_pipeline(
     Trả đúng 5 khóa đã khai báo, mỗi mảng có dạng (H, W).
     Không đọc/lưu tệp, không mở giao diện và không sửa rgb.
     Bước phân ngưỡng nhận độ lớn gradient thô, không phải ảnh xem trước.
+    mode="pencil" thêm lọc trung vị và dựng tranh chì có nhiều mức xám.
+    thin=True làm mảnh lớp nét. Khóa edges giữ mặt nạ vừa phân ngưỡng.
     """
     ksize, threshold = validate_params(ksize, threshold)
     validate_rgb(rgb)
+    if mode not in ("line", "pencil"):
+        raise ValueError("Chế độ tranh phải là line hoặc pencil.")
 
     gray = to_grayscale(rgb)
-    smooth = mean_filter(gray, ksize)
+    source = median_filter_3x3(gray) if mode == "pencil" else gray
+    smooth = mean_filter(source, ksize)
     magnitude = sobel_magnitude(smooth)
     edges = threshold_edges(magnitude, threshold)
-    sketch = render_sketch(edges)
+    strokes = thin_edges(edges) if thin else edges
+    if mode == "pencil":
+        sketch = render_pencil(smooth, magnitude, strokes)
+    else:
+        sketch = render_sketch(strokes)
 
     return {
         "gray": gray,

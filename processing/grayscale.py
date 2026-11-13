@@ -1,4 +1,4 @@
-"""Chuyển ảnh RGB thành mức xám bằng NumPy. Phụ trách: Kiệt."""
+"""Chuyển ảnh RGB thành mức xám bằng NumPy."""
 
 from __future__ import annotations
 

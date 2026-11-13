@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from processing.sketch import render_sketch, threshold_edges
+from processing.sketch import render_sketch, thin_edges, threshold_edges
 
 
 class SketchTests(unittest.TestCase):
@@ -68,6 +68,25 @@ class SketchTests(unittest.TestCase):
             with self.subTest(shape=getattr(value, 'shape', None)):
                 with self.assertRaises(ValueError):
                     render_sketch(value)
+
+    def test_thinning_reduces_a_thick_stroke_without_mutating_input(self):
+        edges = np.zeros((9, 12), dtype=bool)
+        edges[3:6, 2:10] = True
+        before = edges.copy()
+        edges.flags.writeable = False
+
+        thinned = thin_edges(edges)
+
+        expected = np.zeros_like(edges)
+        expected[4, 3:8] = True
+        np.testing.assert_array_equal(thinned, expected)
+        np.testing.assert_array_equal(edges, before)
+        np.testing.assert_array_equal(thin_edges(thinned), thinned)
+
+    def test_thinning_preserves_a_single_pixel_wide_line_at_the_border(self):
+        edges = np.ones((1, 5), dtype=bool)
+        np.testing.assert_array_equal(thin_edges(edges), edges)
+        np.testing.assert_array_equal(thin_edges(~edges), ~edges)
 
 
 if __name__ == '__main__':

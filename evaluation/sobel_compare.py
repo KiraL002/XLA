@@ -1,7 +1,6 @@
-"""So sánh Sobel tự viết với nhánh OpenCV (Long): MAE, sai số lớn nhất, tỷ lệ điểm khác.
+"""So sánh Sobel tự cài đặt với OpenCV.
 
 Dùng cùng ảnh xám float32, ksize=3, BORDER_REPLICATE (xem evaluation/reference.py).
-Chỉ ghi số vào báo cáo sau khi chạy thật trên bộ ảnh chung.
 """
 
 from __future__ import annotations
@@ -18,10 +17,7 @@ def _errors(a: np.ndarray, b: np.ndarray) -> tuple[float, float]:
 
 
 def compare_sobel(gray: np.ndarray) -> dict:
-    """Trả MAE và sai số lớn nhất của Gx, Gy, M giữa bản tự viết và OpenCV.
-
-    Chỉ ghi các giá trị này vào báo cáo sau khi chạy thật trên bộ ảnh chung.
-    """
+    """Trả MAE và sai số lớn nhất của Gx, Gy, M giữa hai cách cài đặt."""
     gx, gy = sobel_gradients(gray)
     rgx, rgy = reference_sobel_gradients(gray)
     m, rm = sobel_magnitude(gray), reference_sobel_magnitude(gray)
