@@ -15,7 +15,7 @@ MODULE_INTERFACES = {
     "image_io": ("load_rgb", "save_sketch"),
     "processing.grayscale": ("to_grayscale",),
     "processing.filters": ("mean_filter",),
-    "processing.edges": ("sobel_magnitude",),
+    "processing.edges": ("sobel_magnitude", "sobel_gradients"),
     "processing.sketch": ("threshold_edges", "render_sketch"),
     "pipeline": ("run_pipeline",),
     "ui": ("launch_app",),
@@ -47,7 +47,7 @@ def check_imports() -> int:
         else:
             print(f"[OK] {module_name}")
     if not failed:
-        print("Nhập module thành công. Thuật toán và giao diện vẫn chưa triển khai.")
+        print("Nhập module thành công (chỉ xác nhận nhập module và tên hàm, chưa chạy thuật toán).")
     return int(failed)
 
 
@@ -72,7 +72,7 @@ def main() -> int:
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--check", action="store_true", help="Kiểm tra nhập module và tên hàm")
     actions.add_argument("--check-deps", action="store_true", help="Kiểm tra thư viện đã cài")
-    actions.add_argument("--gui", action="store_true", help="Chạy giao diện khi đã triển khai")
+    actions.add_argument("--gui", action="store_true", help="Mở giao diện")
     args = parser.parse_args()
 
     if args.check:
@@ -92,7 +92,8 @@ def main() -> int:
         return 0
 
     print(PROJECT_TITLE)
-    print("Trạng thái: bộ khung, chưa có thuật toán và giao diện hoàn chỉnh.")
+    print("Luồng: RGB → mức xám → lọc trung bình → Sobel → phân ngưỡng → tranh nét.")
+    print("Mở giao diện: python main.py --gui")
     print("Kiểm tra cấu trúc: python main.py --check")
     print("Kiểm tra thư viện: python main.py --check-deps")
     print("Bắt đầu đọc README.md và docs/INTERFACES.md.")
